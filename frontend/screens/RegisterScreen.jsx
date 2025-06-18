@@ -1,3 +1,4 @@
+import axiosInstance from '../api/axiosInstance';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,23 +9,35 @@ export default function Register() {
   const navigate = useNavigate(); 
 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com'];
-    const emailValid = validDomains.some(domain => email.endsWith(domain));
-    const passwordValid = password.length >= 6;
-    
-    if (!emailValid) {
-      setError('Email must end with @gmail.com, @yahoo.com, or @hotmail.com');
-    } else if (!passwordValid) {
-      setError('Password must be at least 6 characters long');
-    } else {
-      setError('');
-      
-      navigate('/login');
-    }
-  };
+  const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com'];
+  const emailValid = validDomains.some(domain => email.endsWith(domain));
+  const passwordValid = password.length >= 6;
+
+  if (!emailValid) {
+    setError('Email must end with @gmail.com, @yahoo.com, or @hotmail.com');
+    return;
+  } else if (!passwordValid) {
+    setError('Password must be at least 6 characters long');
+    return;
+  }
+
+  try {
+    const response = await axiosInstance.post("/api/auth/register", {
+      email,
+      password,
+    });
+
+    console.log("User registered:", response.data);
+    navigate("/login");
+  } catch (err) {
+    console.error("Registration error:", err);
+    setError(err.response?.data?.message || "Something went wrong");
+  }
+};
+
   const handleLoginRedirect = () => {
     navigate('/login'); // when clicking "Already have an account?"
   };

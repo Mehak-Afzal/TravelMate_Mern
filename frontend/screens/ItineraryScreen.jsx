@@ -1,7 +1,7 @@
 // src/screens/ItineraryScreen.jsx
 import { useParams, Link } from 'react-router-dom';
 import React from 'react';
-
+import axiosInstance from '../api/axiosInstance';
 const itineraryData = {
   luxury: {
     title: 'Luxury Itineraries',
@@ -32,6 +32,30 @@ const itineraryData = {
 const ItineraryScreen = () => {
   const { category } = useParams();
   const itinerary = itineraryData[category];
+
+  const handleDownload = () => {
+  const fileContent = `
+Title: ${itinerary.title}
+Description: ${itinerary.description}
+Rating: ${itinerary.rating}/5
+  `;
+  const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${itinerary.title.replace(/\s+/g, '_')}_itinerary.txt`;
+  link.click();
+};
+
+// ✅ Share via Email
+const handleEmail = () => {
+  const subject = encodeURIComponent(`Check out this itinerary: ${itinerary.title}`);
+  const body = encodeURIComponent(
+    `Hey!\n\nI wanted to share this awesome itinerary with you:\n\n` +
+    `Title: ${itinerary.title}\nDescription: ${itinerary.description}\nRating: ${itinerary.rating}/5\n`
+  );
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+};
 
   if (!itinerary) {
     return (
@@ -76,6 +100,21 @@ const ItineraryScreen = () => {
               {itinerary.rating % 1 !== 0 && '½'}
             </span>
             <span className="text-gray-600">({itinerary.rating} / 5)</span>
+          </div>
+          <div className="flex space-x-4">
+               <button
+                    onClick={handleDownload}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >Save Itinerary</button>
+              <a
+  href={`https://mail.google.com/mail/?view=cm&fs=1&to=&su=${encodeURIComponent(`Check out this itinerary: ${itinerary.title}`)}&body=${encodeURIComponent(`Hey!\n\nI wanted to share this awesome itinerary with you:\n\nTitle: ${itinerary.title}\nDescription: ${itinerary.description}\nRating: ${itinerary.rating}/5\n`)}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-block text-center"
+>
+  Share via Gmail
+</a>
+
           </div>
         </div>
       </div>

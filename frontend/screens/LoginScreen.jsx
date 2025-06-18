@@ -1,4 +1,5 @@
 // src/screens/LoginScreen.jsx
+import axiosInstance from '../api/axiosInstance';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,24 +9,28 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    // Simple validation
-    if (!email || !password) {
-      setError('Please enter both email and password.');
-      return;
-    }
+  if (!email || !password) {
+    setError('Please enter both email and password.');
+    return;
+  }
 
-    // Simulate authentication (replace with real authentication logic)
-    const isAuthenticated = true; // Replace with actual authentication check
+  try {
+    const response = await axiosInstance.post("/api/auth/login", {
+      email,
+      password,
+    });
 
-    if (isAuthenticated) {
-      navigate('/home'); // Redirect to homepage
-    } else {
-      setError('Invalid credentials. Please try again.');
-    }
-  };
+    console.log("Login successful:", response.data);
+    navigate("/home"); // Or wherever you want to go after login
+  } catch (err) {
+    console.error("Login error:", err);
+    setError(err.response?.data?.message || "Invalid credentials");
+  }
+};
+
 
   const handleRegisterRedirect = () => {
     navigate('/register'); // If user clicks "Don't have an account?"

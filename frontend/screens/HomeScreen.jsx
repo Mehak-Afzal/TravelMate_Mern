@@ -1,66 +1,25 @@
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
 const HomeScreen = () => {
   const [itineraries, setItineraries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching itineraries from a server
     const fetchItineraries = async () => {
-      const data = [
-        {
-          category: 'luxury',
-          title: 'Luxury Itineraries',
-          items: [
-            '5-Star Resort in Maldives',
-            'Private Jet Tour of Europe',
-            'Luxury Safari in Kenya',
-          ],
-          image: 'https://cdn.prod.website-files.com/607e99bffc9a6042b332722c/66192c8cfe0b62f0b3765fb4_65b3a4744c8cd6786dd6d8d0_sunset-water-villa-with-pool-outdoor.webp',
-          rating: 5,
-        },
-        {
-          category: 'beach',
-          title: 'Beach Itineraries',
-          items: [
-            'Island Hopping in Thailand',
-            'Surfing in Bali',
-            'Sunbathing in the Bahamas',
-          ],
-          image: 'https://media.audleytravel.com/-/media/images/home/inspiration/beach-holidays/hd-hero-images/467183391_byron_bay_australia_1330052_3000x1000.jpg?q=79&w=1920&h=685',
-          rating: 4,
-        },
-        {
-          category: 'mountain',
-          title: 'Mountain Itineraries',
-          items: [
-            'Hiking the Swiss Alps',
-            'Skiing in Aspen',
-            'Trekking in the Himalayas',
-          ],
-          image: 'https://www.alpinetrailridgeinn.com/wp-content/uploads/sites/23/2020/07/RMNP-main.jpg',
-          rating: 4.5,
-        },
-        {
-          category: 'cultural',
-          title: 'Cultural Itineraries',
-          items: [
-            'Exploring Ancient Rome',
-            'Visiting Kyoto Temples',
-            'Touring Egyptian Pyramids',
-          ],
-          image: 'https://www.welcomenepaltreks.com/uploads/img/nepal-culture-tour-banner.webp',
-          rating: 4.8,
-        },
-      ];
-      // Set data after 1 second (simulate delay)
-      setTimeout(() => {
-        setItineraries(data);
-      }, 1000);
+      try {
+        const response = await axiosInstance.get('/api/itineraries'); // Make sure this endpoint exists in backend
+        setItineraries(response.data);
+      } catch (error) {
+        console.error('Error fetching itineraries:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchItineraries();
-  }, []); // Empty dependency array = runs once when component mounts
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gray-100">
@@ -80,7 +39,7 @@ const HomeScreen = () => {
           Discover your next adventure with our curated itineraries
         </h3>
 
-        {itineraries.length === 0 ? (
+        {loading ? (
           <p className="text-center text-blue-500">Loading itineraries...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
